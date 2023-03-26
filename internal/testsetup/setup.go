@@ -7,6 +7,7 @@ import (
 
 	"github.com/ory/dockertest/v3"
 	"github.com/psbernardo/dockertest/thirdparty/api/testserver"
+	"github.com/psbernardo/dockertest/thirdparty/database/mariadb/dbserver"
 )
 
 var (
@@ -81,5 +82,18 @@ func WithThirdPartyAPITest() containerOptions {
 		s.ThirdPartyAPIHost = host
 		s.AddContainer(host, resource)
 		return nil
+	}
+}
+
+func WithMariaDBTest() containerOptions {
+	return func(s *TestService) error {
+		resource, port, err := dbserver.SetupMariaDb(s.pool)
+		if err != nil {
+			return err
+		}
+
+		host := buildURL(port)
+		return s.AddContainer(host, resource)
+
 	}
 }

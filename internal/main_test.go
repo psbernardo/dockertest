@@ -22,6 +22,7 @@ func (tu *MainTestSuite) SetupTest() {
 	tu.require = *tu.Require()
 	testservice, err := testsetup.NewTestService(
 		testsetup.WithThirdPartyAPITest(),
+		testsetup.WithMariaDBTest(),
 	)
 	tu.require.Nil(err)
 	tu.testService = testservice

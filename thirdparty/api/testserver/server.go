@@ -46,7 +46,15 @@ func SetupThirdPartyAPI(pool *dockertest.Pool, contextDir string) (*dockertest.R
 		},
 	}
 
-	resource, err := pool.BuildAndRunWithBuildOptions(bOpts, rOpts)
+	hcOptions := func(config *docker.HostConfig) {
+		// set AutoRemove to true so that stopped container goes away by itself
+		config.AutoRemove = true
+		config.RestartPolicy = docker.RestartPolicy{
+			Name: "no",
+		}
+	}
+
+	resource, err := pool.BuildAndRunWithBuildOptions(bOpts, rOpts, hcOptions)
 	if err != nil {
 		log.Fatalf("Could not start resource: %s", err)
 	}
