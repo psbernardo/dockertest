@@ -1,4 +1,4 @@
-package testserver
+package thirdpartyapi
 
 import (
 	"fmt"
@@ -10,20 +10,6 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 )
 
-func NewDockerServer() (*dockertest.Pool, error) {
-	pool, err := dockertest.NewPool("")
-	if err != nil {
-		return nil, fmt.Errorf("could not construct pool: %v", err)
-	}
-
-	err = pool.Client.Ping()
-	if err != nil {
-		return nil, fmt.Errorf("could not connect to Docker: %v", err)
-	}
-
-	return pool, nil
-}
-
 func SetupThirdPartyAPI(pool *dockertest.Pool, contextDir string) (*dockertest.Resource, string, error) {
 	exposePort := "8000"
 
@@ -33,7 +19,7 @@ func SetupThirdPartyAPI(pool *dockertest.Pool, contextDir string) (*dockertest.R
 
 	bOpts := &dockertest.BuildOptions{
 		ContextDir: contextDir,
-		Dockerfile: "./thirdparty/api/test/Dockerfile",
+		Dockerfile: "./test/api/thirdpartyapi/implementation/Dockerfile",
 	}
 
 	rOpts := &dockertest.RunOptions{

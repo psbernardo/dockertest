@@ -10,11 +10,11 @@ func main() {
 }
 
 type Rest struct {
-	baseURL string
+	BaseURL string
 }
 
 func (r *Rest) Get() (int, error) {
-	response, err := http.Get(fmt.Sprintf("%s/health", r.baseURL))
+	response, err := http.Get(fmt.Sprintf("%s/health", r.BaseURL))
 
 	if err != nil {
 		return 0, err

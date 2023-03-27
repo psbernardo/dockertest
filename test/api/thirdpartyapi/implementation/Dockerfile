@@ -18,7 +18,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN go build -o main ./thirdparty/api/test
+RUN go build -o main ./test/api/thirdpartyapi/implementation
 # RUN go build -o main .
 
 # Move to /dist directory as the place for resulting binary folder

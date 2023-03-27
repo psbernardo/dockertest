@@ -6,8 +6,7 @@ import (
 	"strings"
 
 	"github.com/ory/dockertest/v3"
-	"github.com/psbernardo/dockertest/thirdparty/api/testserver"
-	"github.com/psbernardo/dockertest/thirdparty/database/mariadb/dbserver"
+	"github.com/psbernardo/dockertest/config"
 )
 
 var (
@@ -23,10 +22,14 @@ type TestService struct {
 	ThirdPartyAPIHost string
 }
 
+var (
+	TestConfig *config.Config
+)
+
 func NewTestService(options ...containerOptions) (*TestService, error) {
 	var s TestService
-
-	pool, err := testserver.NewDockerServer()
+	TestConfig = config.Read()
+	pool, err := NewDockerServer()
 	if err != nil {
 		return nil, err
 	}
@@ -67,33 +70,16 @@ func (s *TestService) TearDownServices() error {
 	return nil
 }
 
-func buildURL(port string) string {
-	return fmt.Sprintf("%s%s", localHost, port)
-}
-
-func WithThirdPartyAPITest() containerOptions {
-	return func(s *TestService) error {
-		resource, port, err := testserver.SetupThirdPartyAPI(s.pool, contextDIR)
-		if err != nil {
-			return err
-		}
-
-		host := buildURL(port)
-		s.ThirdPartyAPIHost = host
-		s.AddContainer(host, resource)
-		return nil
+func NewDockerServer() (*dockertest.Pool, error) {
+	pool, err := dockertest.NewPool("")
+	if err != nil {
+		return nil, fmt.Errorf("could not construct pool: %v", err)
 	}
-}
 
-func WithMariaDBTest() containerOptions {
-	return func(s *TestService) error {
-		resource, port, err := dbserver.SetupMariaDb(s.pool)
-		if err != nil {
-			return err
-		}
-
-		host := buildURL(port)
-		return s.AddContainer(host, resource)
-
+	err = pool.Client.Ping()
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to Docker: %v", err)
 	}
+
+	return pool, nil
 }

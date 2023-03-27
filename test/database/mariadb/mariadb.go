@@ -1,35 +1,32 @@
-package dbserver
+package mariadb
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
+	"github.com/psbernardo/dockertest/config/database_maria"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var db *sql.DB
-
-func SetupMariaDb(pool *dockertest.Pool) (*dockertest.Resource, string, error) {
-	exposePort := "3306"
-	// pulls an image, creates a container based on it and runs it
-	// resource, err := pool.Run("mariadb", "latest", []string{"MARIADB_ROOT_PASSWORD=secret", "MARIADB_USER=psbernardo", "MARIADB_PASSWORD=trustno1"})
-
+func SetupMariaDb(pool *dockertest.Pool, config database_maria.Config) (*dockertest.Resource, string, error) {
+	tcpPort := fmt.Sprintf("%d/tcp", config.Port)
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "mariadb",
 		Tag:        "latest",
 		Env: []string{
 			"MARIADB_ROOT_PASSWORD=secret",
-			"MARIADB_USER=psbernardo",
-			"MARIADB_PASSWORD=trustno1",
-			"MARIADB_DATABASE=mydatabase",
+			fmt.Sprintf("MARIADB_USER=%s", config.Username),
+			fmt.Sprintf("MARIADB_PASSWORD=%s", config.Password),
+			fmt.Sprintf("MARIADB_DATABASE=%s", config.Database),
 		},
 		PortBindings: map[docker.Port][]docker.PortBinding{
-			"3306/tcp": {
-				{HostIP: "127.0.0.1", HostPort: "3306/tcp"},
+			docker.Port(tcpPort): {
+				{HostIP: config.Host, HostPort: tcpPort},
 			},
 		},
 	}, func(config *docker.HostConfig) {
@@ -46,7 +43,7 @@ func SetupMariaDb(pool *dockertest.Pool) (*dockertest.Resource, string, error) {
 
 	if err := pool.Retry(func() error {
 		var err error
-		db, err = sql.Open("mysql", fmt.Sprintf("root:secret@(localhost:%s)/mydatabase?parseTime=true", resource.GetPort("3306/tcp")))
+		db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", config.Username, config.Password, config.Host, resource.GetPort(tcpPort), config.Database))
 		if err != nil {
 			return err
 		}
@@ -56,6 +53,6 @@ func SetupMariaDb(pool *dockertest.Pool) (*dockertest.Resource, string, error) {
 		return nil, "", err
 	}
 
-	return resource, exposePort, nil
+	return resource, strconv.Itoa(config.Port), nil
 
 }
