@@ -1,8 +1,12 @@
 package thirdpartyapi
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+
+	"github.com/psbernardo/dockertest/internal/model"
 )
 
 type Config struct {
@@ -39,4 +43,22 @@ func (c *Client) Get() (int, error) {
 	}
 
 	return response.StatusCode, nil
+}
+
+func (c *Client) GetPerson(personId int) (*model.Person, error) {
+	response, err := http.Get(fmt.Sprintf("%s/person/%d", c.GetBaseURL(), personId))
+	if err != nil {
+		return nil, err
+	}
+
+	bodyByte, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	person := &model.Person{}
+	if err := json.Unmarshal(bodyByte, person); err != nil {
+
+		return nil, err
+	}
+	return person, nil
 }

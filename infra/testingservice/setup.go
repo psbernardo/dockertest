@@ -2,6 +2,7 @@ package testingservice
 
 import (
 	"github.com/psbernardo/dockertest/infra/api/thirdpartyapi"
+	"github.com/psbernardo/dockertest/infra/database/maria"
 	"github.com/psbernardo/dockertest/infra/testingservice/testsetup"
 )
 
@@ -26,6 +27,11 @@ func (s *SuiteTest) TearDownTestServices() error {
 	return s.TestService.TearDownServices()
 }
 
-func (s *SuiteTest) NewThirdPartyAPIClient() *thirdpartyapi.Client {
+func (s *SuiteTest) NewThirdPartyAPITestClient() *thirdpartyapi.Client {
 	return thirdpartyapi.NewClient(&s.TestService.Config.TestAPIConfig)
+}
+
+func (s *SuiteTest) NewMariaDBTestClient() *maria.PersonRepository {
+	tx := s.TestService.Config.MariaDB.ConnectDB()
+	return maria.NewPersonRepository(tx)
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/psbernardo/dockertest/infra/testingservice"
 	internal "github.com/psbernardo/dockertest/internal"
+	"github.com/psbernardo/dockertest/internal/model"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -40,8 +41,13 @@ func (tu *MainTestSuite) TearDownTest() {
 }
 
 func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
-	businessLogic := internal.NewTestRest(tu.NewThirdPartyAPIClient())
-	statusCode, err := businessLogic.Get()
+	businessLogic := internal.NewTestRest(tu.NewThirdPartyAPITestClient(), tu.NewMariaDBTestClient())
+	person, err := businessLogic.FetchAndCreate(1)
 	tu.require.Nil(err)
-	tu.require.Equal(200, statusCode)
+	tu.require.Equal(&model.Person{
+		ID:       1,
+		Name:     "Patrick",
+		LastName: "Bernardo",
+		Age:      28,
+	}, person)
 }

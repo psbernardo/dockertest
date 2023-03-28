@@ -20,10 +20,6 @@ type TestService struct {
 	Config     *config.Config
 }
 
-// var (
-// 	TestConfig *config.Config
-// )
-
 func NewTestService(options ...containerOptions) (*TestService, error) {
 	s := TestService{
 		Config: config.Read(),
