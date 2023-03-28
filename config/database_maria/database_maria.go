@@ -28,8 +28,8 @@ func buildDSN(config *Config) string {
 		config.Database,
 	)
 }
-func ConnectDB(dbConf *Config) *gorm.DB {
-	dsn := buildDSN(dbConf)
+func (c *Config) ConnectDB() *gorm.DB {
+	dsn := buildDSN(c)
 	dbConn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 		Logger:                                   logger.Default.LogMode(logger.Info),

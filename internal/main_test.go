@@ -3,15 +3,25 @@ package main_test
 import (
 	"testing"
 
+	"github.com/psbernardo/dockertest/infra/testingservice"
 	internal "github.com/psbernardo/dockertest/internal"
-	"github.com/psbernardo/dockertest/test/testsetup"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
+// func TestMain(m *testing.M) {
+// 	t := testsetup.SuiteTest{}
+// 	t.SetupTestServices()
+// 	log.Println("Do stuff BEFORE the tests!")
+// 	exitVal := m.Run()
+// 	log.Println("Do stuff AFTER the tests!")
+// 	t.TearDownTestServices()
+// 	os.Exit(exitVal)
+// }
+
 type MainTestSuite struct {
 	suite.Suite
-	testsetup.SuiteTest
+	testingservice.SuiteTest
 	require require.Assertions
 }
 
@@ -30,11 +40,8 @@ func (tu *MainTestSuite) TearDownTest() {
 }
 
 func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
-	r := internal.Rest{
-		BaseURL: tu.TestService.ThirdPartyAPIHost,
-	}
-
-	statusCode, err := r.Get()
+	businessLogic := internal.NewTestRest(tu.NewThirdPartyAPIClient())
+	statusCode, err := businessLogic.Get()
 	tu.require.Nil(err)
 	tu.require.Equal(200, statusCode)
 }

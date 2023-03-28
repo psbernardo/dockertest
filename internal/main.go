@@ -2,23 +2,27 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 )
 
 func main() {
 	fmt.Println("hi patrick")
 }
 
-type Rest struct {
-	BaseURL string
+type TestAPI interface {
+	Get() (int, error)
 }
 
-func (r *Rest) Get() (int, error) {
-	response, err := http.Get(fmt.Sprintf("%s/health", r.BaseURL))
+type TestRest struct {
+	BaseURL string
+	TestAPI TestAPI
+}
 
-	if err != nil {
-		return 0, err
+func NewTestRest(testAPI TestAPI) *TestRest {
+	return &TestRest{
+		TestAPI: testAPI,
 	}
+}
 
-	return response.StatusCode, nil
+func (r *TestRest) Get() (int, error) {
+	return r.TestAPI.Get()
 }

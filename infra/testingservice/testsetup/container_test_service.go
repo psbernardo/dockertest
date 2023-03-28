@@ -3,7 +3,6 @@ package testsetup
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/psbernardo/dockertest/config"
@@ -11,24 +10,25 @@ import (
 
 var (
 	contextDIR = "../"
-	localHost  = "http://localhost:"
 )
 
 type containerOptions func(s *TestService) error
 
 type TestService struct {
-	containersMap     map[string]*dockertest.Resource
-	pool              *dockertest.Pool
-	ThirdPartyAPIHost string
+	containers []*dockertest.Resource
+	pool       *dockertest.Pool
+	Config     *config.Config
 }
 
-var (
-	TestConfig *config.Config
-)
+// var (
+// 	TestConfig *config.Config
+// )
 
 func NewTestService(options ...containerOptions) (*TestService, error) {
-	var s TestService
-	TestConfig = config.Read()
+	s := TestService{
+		Config: config.Read(),
+	}
+
 	pool, err := NewDockerServer()
 	if err != nil {
 		return nil, err
@@ -44,25 +44,17 @@ func NewTestService(options ...containerOptions) (*TestService, error) {
 
 }
 
-func (s *TestService) AddContainer(host string, resource *dockertest.Resource) error {
-	if s.containersMap == nil {
-		s.containersMap = make(map[string]*dockertest.Resource)
-	}
-
-	if len(strings.TrimSpace(host)) == 0 {
-		return errors.New("host not set")
-	}
-
+func (s *TestService) AddContainer(resource *dockertest.Resource) error {
 	if resource == nil {
 		return errors.New("resource not set")
 	}
 
-	s.containersMap[host] = resource
+	s.containers = append(s.containers, resource)
 	return nil
 }
 
 func (s *TestService) TearDownServices() error {
-	for _, r := range s.containersMap {
+	for _, r := range s.containers {
 		if err := s.pool.Purge(r); err != nil {
 			return err
 		}

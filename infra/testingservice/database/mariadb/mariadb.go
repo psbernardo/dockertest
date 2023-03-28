@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"strconv"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
@@ -13,7 +12,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func SetupMariaDb(pool *dockertest.Pool, config database_maria.Config) (*dockertest.Resource, string, error) {
+func SetupMariaDb(pool *dockertest.Pool, config database_maria.Config) (*dockertest.Resource, error) {
 	tcpPort := fmt.Sprintf("%d/tcp", config.Port)
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "mariadb",
@@ -32,13 +31,11 @@ func SetupMariaDb(pool *dockertest.Pool, config database_maria.Config) (*dockert
 	}, func(config *docker.HostConfig) {
 		// set AutoRemove to true so that stopped container goes away by itself
 		config.AutoRemove = true
-		config.RestartPolicy = docker.RestartPolicy{
-			Name: "no",
-		}
+		config.RestartPolicy = docker.NeverRestart()
 	})
 
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	if err := pool.Retry(func() error {
@@ -50,9 +47,9 @@ func SetupMariaDb(pool *dockertest.Pool, config database_maria.Config) (*dockert
 		return db.Ping()
 	}); err != nil {
 		log.Fatalf("Could not connect to mariadb database: %s", err)
-		return nil, "", err
+		return nil, err
 	}
 
-	return resource, strconv.Itoa(config.Port), nil
+	return resource, nil
 
 }
