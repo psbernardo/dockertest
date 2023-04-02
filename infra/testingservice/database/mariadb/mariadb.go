@@ -14,9 +14,18 @@ import (
 
 func SetupMariaDb(pool *dockertest.Pool, config database_maria.Config) (*dockertest.Resource, error) {
 	tcpPort := fmt.Sprintf("%d/tcp", config.Port)
+
+	constainerName := "MariaTestDB"
+
+	// finds a container with the given name and returns it if present
+	if r, ok := pool.ContainerByName(constainerName); ok {
+		return r, nil
+	}
+
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "mariadb",
 		Tag:        "latest",
+		Name:       constainerName,
 		Env: []string{
 			"MARIADB_ROOT_PASSWORD=secret",
 			fmt.Sprintf("MARIADB_USER=%s", config.Username),

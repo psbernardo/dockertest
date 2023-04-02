@@ -13,6 +13,13 @@ import (
 func SetupThirdPartyAPI(pool *dockertest.Pool, contextDir string) (*dockertest.Resource, error) {
 	exposePort := "8000"
 
+	constainerName := "test-third-party-api"
+
+	// finds a container with the given name and returns it if present
+	if r, ok := pool.ContainerByName(constainerName); ok {
+		return r, nil
+	}
+
 	if len(strings.TrimSpace(contextDir)) == 0 {
 		contextDir = "../"
 	}
@@ -23,7 +30,7 @@ func SetupThirdPartyAPI(pool *dockertest.Pool, contextDir string) (*dockertest.R
 	}
 
 	rOpts := &dockertest.RunOptions{
-		Name:         "test-third-party-api",
+		Name:         constainerName,
 		ExposedPorts: []string{exposePort},
 		PortBindings: map[docker.Port][]docker.PortBinding{
 			"8000/tcp": {

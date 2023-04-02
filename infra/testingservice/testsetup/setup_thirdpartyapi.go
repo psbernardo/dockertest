@@ -10,6 +10,6 @@ func WithThirdPartyAPITest() containerOptions {
 		if err != nil {
 			return err
 		}
-		return s.AddContainer(resource)
+		return s.addContainer(resource)
 	}
 }

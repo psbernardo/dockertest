@@ -26,7 +26,7 @@ func main() {
 	//GCP Kubernetes deployments health readiness probe checks
 	server.GET("person/:id", func(c *gin.Context) {
 		c.JSON(http.StatusOK, Person{
-			ID:       1,
+			ID:       3,
 			Name:     "Patrick",
 			LastName: "Bernardo",
 			Age:      28,

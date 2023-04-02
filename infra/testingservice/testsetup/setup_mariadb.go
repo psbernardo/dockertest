@@ -23,6 +23,6 @@ func WithMariaDBTest() containerOptions {
 		}
 		db.Close()
 
-		return s.AddContainer(resource)
+		return s.addContainer(resource)
 	}
 }

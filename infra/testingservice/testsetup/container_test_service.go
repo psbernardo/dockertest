@@ -10,22 +10,26 @@ import (
 
 var (
 	contextDIR = "../"
+
+	resouse_not_set_error = errors.New("resource not set")
+	duplicate_container   = errors.New("duplicate container initialize")
 )
 
 type containerOptions func(s *TestService) error
 
 type TestService struct {
-	containers []*dockertest.Resource
+	containers map[string]*dockertest.Resource
 	pool       *dockertest.Pool
 	Config     *config.Config
 }
 
 func NewTestService(options ...containerOptions) (*TestService, error) {
 	s := TestService{
-		Config: config.Read(),
+		Config:     config.Read(),
+		containers: make(map[string]*dockertest.Resource),
 	}
 
-	pool, err := NewDockerServer()
+	pool, err := newDockerServer()
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +44,17 @@ func NewTestService(options ...containerOptions) (*TestService, error) {
 
 }
 
-func (s *TestService) AddContainer(resource *dockertest.Resource) error {
+func (s *TestService) addContainer(resource *dockertest.Resource) error {
 	if resource == nil {
-		return errors.New("resource not set")
+		return resouse_not_set_error
 	}
 
-	s.containers = append(s.containers, resource)
+	// handle duplicate container
+	if _, ok := s.containers[resource.Container.Name]; ok {
+		return nil
+	}
+
+	s.containers[resource.Container.Name] = resource
 	return nil
 }
 
@@ -58,7 +67,7 @@ func (s *TestService) TearDownServices() error {
 	return nil
 }
 
-func NewDockerServer() (*dockertest.Pool, error) {
+func newDockerServer() (*dockertest.Pool, error) {
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		return nil, fmt.Errorf("could not construct pool: %v", err)
