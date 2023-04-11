@@ -26,7 +26,7 @@ func SetupThirdPartyAPI(pool *dockertest.Pool, contextDir string) (*dockertest.R
 
 	bOpts := &dockertest.BuildOptions{
 		ContextDir: contextDir,
-		Dockerfile: "./infra/testingservice/api/thirdpartyapi/implementation/Dockerfile",
+		Dockerfile: "./infra/testingservice/thirdpartyapi/implementation/Dockerfile",
 	}
 
 	rOpts := &dockertest.RunOptions{

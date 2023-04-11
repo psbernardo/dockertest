@@ -40,10 +40,16 @@ func (s *SuiteTest) NewThirdPartyAPITestClient() *thirdpartyapi.Client {
 // function which accept with zero or more of that  parameter
 func (s *SuiteTest) NewMariaDBTestClient(dbLoader ...DatabaseLoader) (*maria.PersonRepository, error) {
 	tx := s.TestService.Config.MariaDB.ConnectDB()
-	for _, loadData := range dbLoader {
-		if err := loadData(tx); err != nil {
-			return nil, err
+	if err := tx.Transaction(func(tx *gorm.DB) error {
+		for _, loadData := range dbLoader {
+			if err := loadData(tx); err != nil {
+				return err
+			}
 		}
+		return nil
+	}); err != nil {
+		return nil, err
 	}
+
 	return maria.NewPersonRepository(tx), nil
 }

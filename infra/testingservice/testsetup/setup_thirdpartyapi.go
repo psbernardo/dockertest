@@ -1,7 +1,7 @@
 package testsetup
 
 import (
-	"github.com/psbernardo/dockertest/infra/testingservice/api/thirdpartyapi"
+	"github.com/psbernardo/dockertest/infra/testingservice/thirdpartyapi"
 )
 
 func WithThirdPartyAPITest() containerOptions {
