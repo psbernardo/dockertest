@@ -62,3 +62,5 @@ func (m *MockRequest) SetResponseWriter(w http.ResponseWriter) {
 
 	json.NewEncoder(w).Encode(m.responseData)
 }
+
+type MockRequestList []*MockRequest

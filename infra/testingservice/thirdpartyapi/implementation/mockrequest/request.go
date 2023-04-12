@@ -2,7 +2,7 @@ package mockrequest
 
 import "net/http"
 
-var MockRequestList = []*MockRequest{
+var MockRequestPersonList = []*MockRequest{
 	NewMockRequest("/person/3").
 		HttpMethod("GET").
 		ResponseCode(http.StatusOK).
