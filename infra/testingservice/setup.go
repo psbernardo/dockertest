@@ -15,9 +15,9 @@ type SuiteTest struct {
 
 func (s *SuiteTest) SetupTestServices() error {
 	testservice, err := testsetup.NewTestService(
-		testsetup.WithThirdPartyAPITest(),
+		//	testsetup.WithThirdPartyAPITest(),
 		testsetup.WithMariaDBTest(),
-		testsetup.WithThirdPartyAPITest(),
+	//	testsetup.WithThirdPartyAPITest(),
 	)
 	if err != nil {
 		return err

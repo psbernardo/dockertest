@@ -51,6 +51,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	//all request will be handle here
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		key := fmt.Sprintf("%s%s", r.Method, r.RequestURI)
 		if mockdata, ok := router.Router[key]; ok {
@@ -63,5 +64,6 @@ func main() {
 			}`, key)))
 		}
 	})
+
 	log.Fatal(http.ListenAndServe(":8000", nil))
 }

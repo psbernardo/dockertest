@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/psbernardo/dockertest/infra/testingservice"
+	"github.com/psbernardo/dockertest/infra/testingservice/mockapi"
 	"github.com/psbernardo/dockertest/infra/testingservice/testsetup/loadtestdata"
 	internal "github.com/psbernardo/dockertest/internal"
 	"github.com/psbernardo/dockertest/internal/model"
@@ -33,6 +34,7 @@ func TestMainTestSuite(t *testing.T) {
 
 func (tu *MainTestSuite) SetupTest() {
 	tu.require = *tu.Require()
+	tu.require.Nil(mockapi.NewMockAPIServer().LoadDefaultMockDataTest().Run())
 	tu.require.Nil(tu.SetupTestServices())
 
 }
