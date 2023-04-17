@@ -21,7 +21,7 @@ func NewMockRequestRouter() (*MockRequestRouter, error) {
 
 	if err := LoadMockRequestList(MockRequestRouter,
 		// Add here all mock request
-		mockrequest.MockRequestPersonList,
+		//mockrequest.MockRequestPersonList,
 		mockrequest.MockRequestLocusList,
 	); err != nil {
 		return nil, err

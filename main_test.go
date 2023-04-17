@@ -44,9 +44,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 	// if we need to load some data to database
 	// before calling the test usecase
 	mariaDBTest, err := tu.NewMariaDBTestClient(
-		loadtestdata.WithNewPerson(),  // load test data 1
-		loadtestdata.WithNewPerson2(), // load test data 2
-		loadtestdata.WithNewPerson(),
+		loadtestdata.WithNewPerson(), // load test data 1
 	)
 	tu.require.Nil(err)
 

@@ -18,6 +18,7 @@ func NewPersonRepository(tx *gorm.DB) *PersonRepository {
 
 func (p *PersonRepository) CreatePerson(person *model.Person) (*model.Person, error) {
 	entitiesPerson := entities.Person{
+		ID:       person.ID,
 		Name:     person.Name,
 		LastName: person.LastName,
 		Age:      person.Age,

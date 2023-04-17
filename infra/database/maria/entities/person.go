@@ -1,7 +1,7 @@
 package entities
 
 type Person struct {
-	ID       int    `gorm:"primaryKey;type:int"`
+	ID       int    `gorm:"type:int"`
 	Name     string `gorm:"type:varchar(100) NOT NULL"`
 	LastName string `gorm:"type:varchar(100) NOT NULL"`
 	Age      int    `gorm:"type:varchar(100) NOT NULL"`
