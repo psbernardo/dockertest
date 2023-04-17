@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
@@ -48,7 +47,6 @@ func SetupMariaDb(pool *dockertest.Pool, config database_maria.Config) (*dockert
 		return nil, err
 	}
 	// add six seconds waiting time to up the DB
-	time.Sleep(time.Second * 6)
 	if err := pool.Retry(func() error {
 		var err error
 		db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@(%s:%s)/%s?parseTime=true", config.Username, config.Password, config.Host, resource.GetPort(tcpPort), config.Database))

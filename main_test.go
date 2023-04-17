@@ -52,7 +52,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 
 	usecase := internal.NewUseCase(tu.NewThirdPartyAPITestClient(), mariaDBTest)
 
-	// Setup
+	// Setup test
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodPost, "/", nil)
 	rec := httptest.NewRecorder()

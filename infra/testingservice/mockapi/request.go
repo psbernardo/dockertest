@@ -2,6 +2,13 @@ package mockapi
 
 import "net/http"
 
+var healthCheck = []*MockRequest{
+	NewMockRequest("/health").
+		HttpMethod("GET").
+		ResponseCode(http.StatusOK).
+		ResponseString(""),
+}
+
 var MockRequestPersonList = []*MockRequest{
 	NewMockRequest("/person/3").
 		HttpMethod("GET").

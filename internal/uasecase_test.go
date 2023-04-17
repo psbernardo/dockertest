@@ -53,6 +53,8 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 	)
 	tu.require.Nil(err)
 
+	// test catch up
+
 	usecase := internal.NewUseCase(tu.NewThirdPartyAPITestClient(), mariaDBTest)
 	person, err := usecase.FetchAndCreate(3)
 	tu.require.Nil(err)

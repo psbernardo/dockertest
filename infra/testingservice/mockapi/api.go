@@ -7,9 +7,10 @@ import (
 )
 
 type testMockAPIServer struct {
-	router  map[string]*MockRequest
-	Error   error
-	running bool
+	router   map[string]*MockRequest
+	Error    error
+	running  bool
+	httpPort string
 }
 
 var (
@@ -20,8 +21,10 @@ func NewMockAPIServer() *testMockAPIServer {
 
 	if mockAPI == nil {
 		mockAPI = &testMockAPIServer{
-			router: make(map[string]*MockRequest),
+			router:   make(map[string]*MockRequest),
+			httpPort: "8000",
 		}
+
 	}
 
 	return mockAPI
@@ -31,6 +34,7 @@ func (m *testMockAPIServer) LoadDefaultMockDataTest() *testMockAPIServer {
 	if err := loadMockRequestList(m,
 		// Add here all mock request
 		MockRequestPersonList,
+		healthCheck,
 	); err != nil {
 		m.Error = err
 	}
@@ -41,6 +45,7 @@ func (m *testMockAPIServer) LoadMockData(mockRequest ...MockRequestList) *testMo
 	if err := loadMockRequestList(m,
 		// Add here all mock request
 		MockRequestPersonList,
+		healthCheck,
 	); err != nil {
 		m.Error = err
 	}
@@ -70,13 +75,26 @@ func (m *testMockAPIServer) Run() error {
 	if m.running {
 		return nil
 	}
-	http.HandleFunc("/", m.routerHndleFunc())
-	go func() {
-		m.running = true
-		log.Fatal(http.ListenAndServe(":8000", nil))
-	}()
 
+	for !m.HealthCheck() {
+		log.Println("health check test")
+		http.HandleFunc("/", mockAPI.routerHndleFunc())
+		go func() {
+			mockAPI.running = true
+			log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", mockAPI.httpPort), nil))
+		}()
+	}
 	return nil
+}
+
+func (m *testMockAPIServer) HealthCheck() bool {
+	response, err := http.Get(fmt.Sprintf("%s/health", fmt.Sprintf("http://localhost:%s", mockAPI.httpPort)))
+
+	if err != nil {
+		return false
+	}
+
+	return response.StatusCode == http.StatusOK
 }
 
 func loadMockRequestList(router *testMockAPIServer, mockRequest ...MockRequestList) error {
