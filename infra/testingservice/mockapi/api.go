@@ -7,14 +7,24 @@ import (
 )
 
 type testMockAPIServer struct {
-	router map[string]*MockRequest
-	Error  error
+	router  map[string]*MockRequest
+	Error   error
+	running bool
 }
 
+var (
+	mockAPI *testMockAPIServer
+)
+
 func NewMockAPIServer() *testMockAPIServer {
-	return &testMockAPIServer{
-		router: make(map[string]*MockRequest),
+
+	if mockAPI == nil {
+		mockAPI = &testMockAPIServer{
+			router: make(map[string]*MockRequest),
+		}
 	}
+
+	return mockAPI
 }
 
 func (m *testMockAPIServer) LoadDefaultMockDataTest() *testMockAPIServer {
@@ -57,11 +67,15 @@ func (m *testMockAPIServer) Run() error {
 	if m.Error != nil {
 		return m.Error
 	}
+	if m.running {
+		return nil
+	}
 	http.HandleFunc("/", m.routerHndleFunc())
 	go func() {
-
+		m.running = true
 		log.Fatal(http.ListenAndServe(":8000", nil))
 	}()
+
 	return nil
 }
 
