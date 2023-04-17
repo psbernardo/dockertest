@@ -31,7 +31,7 @@ func (s *SuiteTest) TearDownTestServices() error {
 	return s.TestService.TearDownServices()
 }
 
-func (s *SuiteTest) NewThirdPartyAPITestClient() *thirdpartyapi.Client {
+func (s *SuiteTest) NewThirdPartyAPIClient() *thirdpartyapi.Client {
 	return thirdpartyapi.NewClient(&s.TestService.Config.TestAPIConfig)
 }
 

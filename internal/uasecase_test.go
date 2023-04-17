@@ -55,7 +55,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 
 	// test catch up
 
-	usecase := internal.NewUseCase(tu.NewThirdPartyAPITestClient(), mariaDBTest)
+	usecase := internal.NewUseCase(tu.NewThirdPartyAPIClient(), mariaDBTest)
 	person, err := usecase.FetchAndCreate(3)
 	tu.require.Nil(err)
 	tu.require.Equal(&model.Person{

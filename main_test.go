@@ -2,20 +2,15 @@ package main
 
 import (
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
-	"github.com/labstack/echo/v4"
 	"github.com/psbernardo/dockertest/infra/testingservice"
 	"github.com/psbernardo/dockertest/infra/testingservice/mockapi"
 	"github.com/psbernardo/dockertest/infra/testingservice/testsetup/loadtestdata"
 	internal "github.com/psbernardo/dockertest/internal"
+	"github.com/psbernardo/dockertest/internal/model"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-)
-
-var (
-	userJSON = "{\"id\":4,\"name\":\"Bryan\",\"lastName\":\"Bernardo\",\"age\":23}\n"
 )
 
 type MainTestSuite struct {
@@ -47,23 +42,46 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 		loadtestdata.WithNewPerson(), // load test data 1
 	)
 	tu.require.Nil(err)
-
-	usecase := internal.NewUseCase(tu.NewThirdPartyAPITestClient(), mariaDBTest)
-
-	// Setup test
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/", nil)
-	rec := httptest.NewRecorder()
-	c := e.NewContext(req, rec)
-	c.SetPath("/:id")
-	c.SetParamNames("id")
-	c.SetParamValues("4")
-
+	usecase := internal.NewUseCase(tu.NewThirdPartyAPIClient(), mariaDBTest)
 	handler := NewHanlder(usecase)
 
-	err = handler.CreatePerson(c)
-	tu.require.Nil(err)
-	tu.require.Equal(http.StatusCreated, rec.Code)
-	tu.require.Equal(userJSON, rec.Body.String())
+	RunAllHTTPTest(tu.T(),
+
+		NewHttpTest("Get person id 4").
+			withHTTPMethod(http.MethodPost).
+			withHandler(handler.CreatePerson).
+			withExpectedStatusCode(http.StatusCreated).
+			withPathParameters(map[string]string{"id": "4"}).
+			withExpectedResponse(model.Person{
+				ID:       4,
+				Name:     "Bryan",
+				LastName: "Bernardo",
+				Age:      23,
+			}),
+
+		NewHttpTest("Get person id 3").
+			withHTTPMethod(http.MethodPost).
+			withHandler(handler.CreatePerson).
+			withExpectedStatusCode(http.StatusCreated).
+			withPathParameters(map[string]string{"id": "3"}).
+			withExpectedResponse(model.Person{
+				ID:       3,
+				Name:     "Patrick",
+				LastName: "Bernardo",
+				Age:      28,
+			}),
+
+		NewHttpTest("Get person id 5").
+			withHTTPMethod(http.MethodPost).
+			withHandler(handler.CreatePerson).
+			withExpectedStatusCode(http.StatusCreated).
+			withPathParameters(map[string]string{"id": "5"}).
+			withExpectedResponse(model.Person{
+				ID:       5,
+				Name:     "Pearson",
+				LastName: "Specter",
+				Age:      30,
+			}),
+	)
 
 }
