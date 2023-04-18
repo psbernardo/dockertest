@@ -1,6 +1,8 @@
 package testingservice
 
 import (
+	"log"
+
 	"github.com/psbernardo/dockertest/infra/api/thirdpartyapi"
 	"github.com/psbernardo/dockertest/infra/database/maria"
 	"github.com/psbernardo/dockertest/infra/testingservice/testsetup"
@@ -31,7 +33,8 @@ func (s *SuiteTest) TearDownTestServices() error {
 	return s.TestService.TearDownServices()
 }
 
-func (s *SuiteTest) NewThirdPartyAPIClient() *thirdpartyapi.Client {
+func (s *SuiteTest) NewThirdPartyAPIClient(testingPort int) *thirdpartyapi.Client {
+	s.TestService.Config.TestAPIConfig.Port = testingPort
 	return thirdpartyapi.NewClient(&s.TestService.Config.TestAPIConfig)
 }
 
@@ -39,7 +42,9 @@ func (s *SuiteTest) NewThirdPartyAPIClient() *thirdpartyapi.Client {
 //
 // function which accept with zero or more of that  parameter
 func (s *SuiteTest) NewMariaDBTestClient(dbLoader ...DatabaseLoader) (*maria.PersonRepository, error) {
+	log.Println(s.TestService.Config.MariaDB)
 	tx := s.TestService.Config.MariaDB.ConnectDB()
+
 	if err := tx.Transaction(func(tx *gorm.DB) error {
 		for _, loadData := range dbLoader {
 			if err := loadData(tx); err != nil {

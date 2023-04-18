@@ -25,7 +25,8 @@ import (
 type MainTestSuite struct {
 	suite.Suite
 	testingservice.SuiteTest
-	require require.Assertions
+	require     require.Assertions
+	mockAPIPort int
 }
 
 func TestMainTestSuite(t *testing.T) {
@@ -34,7 +35,9 @@ func TestMainTestSuite(t *testing.T) {
 
 func (tu *MainTestSuite) SetupTest() {
 	tu.require = *tu.Require()
-	tu.require.Nil(mockapi.NewMockAPIServer().LoadDefaultMockDataTest().Run())
+	mockAPIPort, err := mockapi.NewMockAPIServer().LoadDefaultMockDataTest().Run()
+	tu.require.Nil(err)
+	tu.mockAPIPort = mockAPIPort
 	tu.require.Nil(tu.SetupTestServices())
 
 }
@@ -55,7 +58,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 
 	// test catch up
 
-	usecase := internal.NewUseCase(tu.NewThirdPartyAPIClient(), mariaDBTest)
+	usecase := internal.NewUseCase(tu.NewThirdPartyAPIClient(tu.mockAPIPort), mariaDBTest)
 	person, err := usecase.FetchAndCreate(3)
 	tu.require.Nil(err)
 	tu.require.Equal(&model.Person{

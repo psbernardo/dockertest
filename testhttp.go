@@ -51,7 +51,7 @@ func (h *HttpTest) withExpectedStatusCode(statusCode int) *HttpTest {
 	return h
 }
 
-func (h *HttpTest) withExpectedResponse(response interface{}) *HttpTest {
+func (h *HttpTest) shoulResponse(response interface{}) *HttpTest {
 	h.ExpectedResponse = response
 	return h
 }

@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/psbernardo/dockertest/infra/testingservice/tools"
 )
 
 type testMockAPIServer struct {
 	router   map[string]*MockRequest
 	Error    error
 	running  bool
-	httpPort string
+	httpPort int
 }
 
 var (
@@ -22,7 +24,7 @@ func NewMockAPIServer() *testMockAPIServer {
 	if mockAPI == nil {
 		mockAPI = &testMockAPIServer{
 			router:   make(map[string]*MockRequest),
-			httpPort: "8000",
+			httpPort: tools.GetAvailablePort(),
 		}
 
 	}
@@ -68,12 +70,12 @@ func (m *testMockAPIServer) routerHndleFunc() func(w http.ResponseWriter, r *htt
 	}
 }
 
-func (m *testMockAPIServer) Run() error {
+func (m *testMockAPIServer) Run() (int, error) {
 	if m.Error != nil {
-		return m.Error
+		return 0, m.Error
 	}
 	if m.running {
-		return nil
+		return 0, nil
 	}
 
 	for !m.HealthCheck() {
@@ -81,14 +83,14 @@ func (m *testMockAPIServer) Run() error {
 		http.HandleFunc("/", mockAPI.routerHndleFunc())
 		go func() {
 			mockAPI.running = true
-			log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", mockAPI.httpPort), nil))
+			log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", mockAPI.httpPort), nil))
 		}()
 	}
-	return nil
+	return m.httpPort, nil
 }
 
 func (m *testMockAPIServer) HealthCheck() bool {
-	response, err := http.Get(fmt.Sprintf("%s/health", fmt.Sprintf("http://localhost:%s", mockAPI.httpPort)))
+	response, err := http.Get(fmt.Sprintf("%s/health", fmt.Sprintf("http://localhost:%d", mockAPI.httpPort)))
 
 	if err != nil {
 		return false

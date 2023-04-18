@@ -16,7 +16,8 @@ import (
 type MainTestSuite struct {
 	suite.Suite
 	testingservice.SuiteTest
-	require require.Assertions
+	require     require.Assertions
+	mockAPIPort int
 }
 
 func TestMainTestSuite(t *testing.T) {
@@ -25,7 +26,9 @@ func TestMainTestSuite(t *testing.T) {
 
 func (tu *MainTestSuite) SetupTest() {
 	tu.require = *tu.Require()
-	tu.require.Nil(mockapi.NewMockAPIServer().LoadDefaultMockDataTest().Run())
+	mockAPIPort, err := mockapi.NewMockAPIServer().LoadDefaultMockDataTest().Run()
+	tu.require.Nil(err)
+	tu.mockAPIPort = mockAPIPort
 	tu.require.Nil(tu.SetupTestServices())
 
 }
@@ -42,7 +45,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 		loadtestdata.WithNewPerson(), // load test data 1
 	)
 	tu.require.Nil(err)
-	usecase := internal.NewUseCase(tu.NewThirdPartyAPIClient(), mariaDBTest)
+	usecase := internal.NewUseCase(tu.NewThirdPartyAPIClient(tu.mockAPIPort), mariaDBTest)
 	handler := NewHanlder(usecase)
 
 	RunAllHTTPTest(tu.T(),
@@ -52,7 +55,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 			withHandler(handler.CreatePerson).
 			withExpectedStatusCode(http.StatusCreated).
 			withPathParameters(map[string]string{"id": "4"}).
-			withExpectedResponse(model.Person{
+			shoulResponse(model.Person{
 				ID:       4,
 				Name:     "Bryan",
 				LastName: "Bernardo",
@@ -64,7 +67,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 			withHandler(handler.CreatePerson).
 			withExpectedStatusCode(http.StatusCreated).
 			withPathParameters(map[string]string{"id": "3"}).
-			withExpectedResponse(model.Person{
+			shoulResponse(model.Person{
 				ID:       3,
 				Name:     "Patrick",
 				LastName: "Bernardo",
@@ -76,7 +79,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 			withHandler(handler.CreatePerson).
 			withExpectedStatusCode(http.StatusCreated).
 			withPathParameters(map[string]string{"id": "5"}).
-			withExpectedResponse(model.Person{
+			shoulResponse(model.Person{
 				ID:       5,
 				Name:     "Pearson",
 				LastName: "Specter",
