@@ -7,7 +7,7 @@ import (
 
 func WithMariaDBTest() containerOptions {
 	return func(s *TestService) error {
-		resource, err := mariadb.SetupMariaDb(s.pool, *s.Config.MariaDB)
+		resource, err := mariadb.SetupMariaDb(s.pool, s.Config.MariaDB)
 		if err != nil {
 			return err
 		}
