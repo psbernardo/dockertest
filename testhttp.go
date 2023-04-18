@@ -46,7 +46,7 @@ func (h *HttpTest) withHandler(hndler func(c echo.Context) error) *HttpTest {
 	return h
 }
 
-func (h *HttpTest) withExpectedStatusCode(statusCode int) *HttpTest {
+func (h *HttpTest) shouldResponseStatusCode(statusCode int) *HttpTest {
 	h.ExpectedStatusCode = statusCode
 	return h
 }

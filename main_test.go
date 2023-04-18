@@ -53,8 +53,8 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 		NewHttpTest("Get person id 4").
 			withHTTPMethod(http.MethodPost).
 			withHandler(handler.CreatePerson).
-			withExpectedStatusCode(http.StatusCreated).
 			withPathParameters(map[string]string{"id": "4"}).
+			shouldResponseStatusCode(http.StatusCreated).
 			shoulResponse(model.Person{
 				ID:       4,
 				Name:     "Bryan",
@@ -65,8 +65,8 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 		NewHttpTest("Get person id 3").
 			withHTTPMethod(http.MethodPost).
 			withHandler(handler.CreatePerson).
-			withExpectedStatusCode(http.StatusCreated).
 			withPathParameters(map[string]string{"id": "3"}).
+			shouldResponseStatusCode(http.StatusCreated).
 			shoulResponse(model.Person{
 				ID:       3,
 				Name:     "Patrick",
@@ -77,8 +77,8 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 		NewHttpTest("Get person id 5").
 			withHTTPMethod(http.MethodPost).
 			withHandler(handler.CreatePerson).
-			withExpectedStatusCode(http.StatusCreated).
 			withPathParameters(map[string]string{"id": "5"}).
+			shouldResponseStatusCode(http.StatusCreated).
 			shoulResponse(model.Person{
 				ID:       5,
 				Name:     "Pearson",
