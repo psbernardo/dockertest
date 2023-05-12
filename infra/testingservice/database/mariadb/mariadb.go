@@ -35,11 +35,6 @@ func SetupMariaDb(pool *dockertest.Pool, config *database_maria.Config) (*docker
 			fmt.Sprintf("MARIADB_PASSWORD=%s", config.Password),
 			fmt.Sprintf("MARIADB_DATABASE=%s", config.Database),
 		},
-		// PortBindings: map[docker.Port][]docker.PortBinding{
-		// 	docker.Port(tcpPort): {
-		// 		{HostIP: config.Host, HostPort: tcpPort},
-		// 	},
-		// },
 	}, func(config *docker.HostConfig) {
 		// set AutoRemove to true so that stopped container goes away by itself
 		config.AutoRemove = true

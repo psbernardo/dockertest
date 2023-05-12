@@ -28,6 +28,10 @@ func (p *PersonRepository) CreatePerson(person *model.Person) (*model.Person, er
 		return nil, err
 	}
 
+	if err := p.tx.Model(entities.Person{}).Where("id = ?", entitiesPerson.ID).Find(&entitiesPerson).Error; err != nil {
+		return nil, err
+	}
+
 	return &model.Person{
 		ID:       entitiesPerson.ID,
 		Name:     entitiesPerson.Name,
