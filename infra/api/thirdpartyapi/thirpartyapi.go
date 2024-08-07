@@ -1,6 +1,7 @@
 package thirdpartyapi
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -35,7 +36,7 @@ func (c *Client) GetBaseURL() string {
 	return c.Config.BaseURL
 }
 
-func (c *Client) Get() (int, error) {
+func (c *Client) Get(ctx context.Context) (int, error) {
 	response, err := http.Get(fmt.Sprintf("%s/health", c.GetBaseURL()))
 
 	if err != nil {
@@ -45,7 +46,8 @@ func (c *Client) Get() (int, error) {
 	return response.StatusCode, nil
 }
 
-func (c *Client) GetPerson(personId int) (*model.Person, error) {
+func (c *Client) GetPerson(ctx context.Context, personId int) (*model.Person, error) {
+
 	response, err := http.Get(fmt.Sprintf("%s/person/%d", c.GetBaseURL(), personId))
 	if err != nil {
 		return nil, err

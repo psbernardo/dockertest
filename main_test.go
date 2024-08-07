@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"testing"
 
@@ -9,8 +10,11 @@ import (
 	"github.com/psbernardo/dockertest/infra/testingservice/testsetup/loadtestdata"
 	internal "github.com/psbernardo/dockertest/internal"
 	"github.com/psbernardo/dockertest/internal/model"
+	"github.com/psbernardo/dockertest/utl/tracing"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type MainTestSuite struct {
@@ -38,6 +42,21 @@ func (tu *MainTestSuite) TearDownTest() {
 }
 
 func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
+
+	traceProvider, _ := tracing.NewTraceProvider(context.Background(),
+		tracing.Config{
+			AppName:     "http-server",
+			AppVersion:  "1.0",
+			Env:         "DEV",
+			OtLEndpoint: "localhost:4318",
+		},
+	)
+
+	otel.SetTracerProvider(traceProvider)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
 
 	// if we need to load some data to database
 	// before calling the test usecase

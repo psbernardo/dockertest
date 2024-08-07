@@ -1,16 +1,19 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/psbernardo/dockertest/internal/model"
+	"github.com/psbernardo/dockertest/utl/tracing"
 )
 
 type ThirdPartyAPI interface {
-	Get() (int, error)
-	GetPerson(personId int) (*model.Person, error)
+	Get(ctx context.Context) (int, error)
+	GetPerson(ctx context.Context, personId int) (*model.Person, error)
 }
 
 type Repository interface {
-	CreatePerson(person *model.Person) (*model.Person, error)
+	CreatePerson(ctx context.Context, person *model.Person) (*model.Person, error)
 }
 
 type UseCase struct {
@@ -25,16 +28,19 @@ func NewUseCase(testAPI ThirdPartyAPI, repository Repository) *UseCase {
 	}
 }
 
-func (r *UseCase) Get() (int, error) {
-	return r.testAPI.Get()
+func (r *UseCase) Get(ctx context.Context) (int, error) {
+	return r.testAPI.Get(ctx)
 }
 
-func (r *UseCase) FetchAndCreate(personId int) (*model.Person, error) {
+func (r *UseCase) FetchAndCreate(ctx context.Context, personId int) (*model.Person, error) {
+	tracing.NewTraceUseCase().StartSpanWithAttributes(ctx, map[string]interface{}{
+		"personId": personId,
+	})
 	// fetch the data to the third party api
-	Person, err := r.testAPI.GetPerson(personId)
+	Person, err := r.testAPI.GetPerson(ctx, personId)
 	if err != nil {
 		return nil, err
 	}
 	// save the data to database
-	return r.personRepository.CreatePerson(Person)
+	return r.personRepository.CreatePerson(ctx, Person)
 }

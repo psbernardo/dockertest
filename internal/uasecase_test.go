@@ -1,12 +1,14 @@
 package usecase_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/psbernardo/dockertest/infra/testingservice"
 	"github.com/psbernardo/dockertest/infra/testingservice/mockapi"
 	"github.com/psbernardo/dockertest/infra/testingservice/testsetup/loadtestdata"
 	internal "github.com/psbernardo/dockertest/internal"
+	"github.com/psbernardo/dockertest/internal/mocking"
 	"github.com/psbernardo/dockertest/internal/model"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -59,7 +61,7 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 	// test catch up
 
 	usecase := internal.NewUseCase(tu.NewThirdPartyAPIClient(tu.mockAPIPort), mariaDBTest)
-	person, err := usecase.FetchAndCreate(3)
+	person, err := usecase.FetchAndCreate(context.Background(), 3)
 	tu.require.Nil(err)
 	tu.require.Equal(&model.Person{
 		ID:       3,
@@ -67,4 +69,42 @@ func (tu *MainTestSuite) TestConsumeRestAPIFromDocker() {
 		LastName: "Bernardo",
 		Age:      28,
 	}, person)
+}
+
+func TestUseCase(t *testing.T) {
+	mockingRepo := &mocking.MockRepository{}
+	mockThirdParty := &mocking.MockThirdPartyAPI{}
+
+	mockThirdParty.GetPersonFn = func(ctx context.Context, personId int) (*model.Person, error) {
+		return &model.Person{
+			ID:       3,
+			Name:     "Patrick",
+			LastName: "Bernardo",
+			Age:      28,
+		}, nil
+	}
+
+	mockingRepo.CreatePersonFn = func(ctx context.Context, person *model.Person) (*model.Person, error) {
+		return &model.Person{
+			ID:       3,
+			Name:     "Patrick",
+			LastName: "Bernardo",
+			Age:      28,
+		}, nil
+	}
+
+	usecase := internal.NewUseCase(mockThirdParty, mockingRepo)
+
+	person, _ := usecase.FetchAndCreate(context.Background(), 3)
+
+	expected := &model.Person{
+		ID:       3,
+		Name:     "Patrick",
+		LastName: "Bernardo",
+		Age:      28,
+	}
+	if *person != *expected {
+		t.Error("not equal")
+	}
+
 }

@@ -26,7 +26,7 @@ func NewHanlder(useCase *internal.UseCase) *handler {
 
 func (h *handler) CreatePerson(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
-	person, err := h.useCase.FetchAndCreate(id)
+	person, err := h.useCase.FetchAndCreate(c.Request().Context(), id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 	}
